@@ -1,90 +1,82 @@
---  Criando a tabela "Usuario";
-create table Usuario(
-	id integer primary key,
-	nome varchar(50),
-	login varchar(100),
-	senha varchar (100),
-	email varchar (100),
-	dt_nascimento date,
-	cpf varchar(11),
-	rg integer
+-- Criação da tabela Usuário
+CREATE TABLE Usuario (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    login VARCHAR(50) NOT NULL UNIQUE,
+    senha VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    dt_nascimento DATE NOT NULL,
+    cpf VARCHAR(14) NOT NULL,
+    rg VARCHAR(20) NOT NULL
 );
 
---  Criando a tabela "Genero";
-create table Genero(
-	id integer primary key,
-	nome varchar (50)
+-- Criação da tabela Genero
+CREATE TABLE Genero (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL
 );
 
---  Criando a tabela "Plataforma";
-create table Plataforma(
-	id integer primary key,
-	nome varchar (50)
+-- Criação da tabela Plataforma
+CREATE TABLE Plataforma (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL
 );
 
---  Criando a tabela "Jogo";
-create table jogo(
-	id integer primary key,
-	nome varchar (50),
-	data_lancamento date,
-	plataforma_id integer,
-	genero_id integer,
-	FOREIGN KEY (plataforma_id) REFERENCES Plataforma(id),
-  	FOREIGN KEY (genero_id) REFERENCES Genero(id)
+-- Criação da tabela Jogo
+CREATE TABLE Jogo (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    data_lancamento DATE NOT NULL,
+    genero_id INT NOT NULL,
+    FOREIGN KEY (genero_id) REFERENCES Genero(id)
 );
 
--- Criação da tabela "Usuario_Jogo";
-create table Usuario_Jogo(
-  usuario_id INT,
-  jogo_id INT,
-  FOREIGN KEY (usuario_id) REFERENCES Usuario(id),
-  FOREIGN KEY (jogo_id) REFERENCES Jogo(id),
-  PRIMARY KEY (usuario_id, jogo_id)
+-- Criação da tabela Jogo_Plataforma
+CREATE TABLE Jogo_Plataforma (
+    jogo_id INT,
+    plataforma_id INT,
+    PRIMARY KEY (jogo_id, plataforma_id),
+    FOREIGN KEY (jogo_id) REFERENCES Jogo(id),
+    FOREIGN KEY (plataforma_id) REFERENCES Plataforma(id)
 );
 
---  Criando a tabela "Foto";
-create table Foto(
-	id integer primary key,
-	jogo_id integer,
-	FOREIGN KEY (jogo_id) REFERENCES Jogo(id),
-	url varchar (500)
+-- Criação da tabela Foto_Jogo
+CREATE TABLE Foto_Jogo (
+    id SERIAL PRIMARY KEY,
+    jogo_id INT NOT NULL,
+    url_foto VARCHAR(255) NOT NULL,
+    FOREIGN KEY (jogo_id) REFERENCES Jogo(id)
 );
 
---  Criando a tabela "Video";
-create table Video(
-	id integer primary key,
-	jogo_id integer,
-	FOREIGN KEY (jogo_id) REFERENCES Jogo(id),
-	url varchar (500)
+-- Criação da tabela Video_Jogo
+CREATE TABLE Video_Jogo (
+    id SERIAL PRIMARY KEY,
+    jogo_id INT NOT NULL,
+    url_video VARCHAR(255) NOT NULL,
+    FOREIGN KEY (jogo_id) REFERENCES Jogo(id)
 );
 
--- Inserir a plataforma "Playstation 4" na tabela Plataforma
-INSERT INTO Plataforma (id, nome)
-VALUES (1, 'Playstation 4');
+-- Inserir o jogo "The Sims 4 Base" e seus gêneros na tabela Genero
+INSERT INTO Genero (nome) VALUES ('Simulação da Vida Real');
 
--- Inserir a plataforma "Playstation 5" na tabela Plataforma
-INSERT INTO Plataforma (id, nome)
-VALUES (2, 'Playstation 5');
+-- Inserir as plataformas na tabela Plataforma (caso ainda não existam)
+INSERT INTO Plataforma (nome) VALUES
+    ('Playstation 4'),
+    ('Playstation 5'),
+    ('Desktop');
 
--- Inserir a plataforma "Desktop" na tabela Plataforma
-INSERT INTO Plataforma (id, nome)
-VALUES (3, 'Desktop');
+-- Inserir o jogo "The Sims 4 Base" na tabela Jogo
+INSERT INTO Jogo (nome, data_lancamento, genero_id)
+VALUES ('The Sims 4 Base', '2023-07-01', 1);
 
--- Inserir o gênero "Simulação da Vida Real" na tabela Genero
-INSERT INTO Genero (id, nome)
-VALUES (1, 'Simulação da Vida Real');
+-- Relacionar o jogo "The Sims 4 Base" às plataformas na tabela Jogo_Plataforma
+INSERT INTO Jogo_Plataforma (jogo_id, plataforma_id)
+SELECT j.id, p.id
+FROM Jogo j
+CROSS JOIN Plataforma p
+WHERE j.nome = 'The Sims 4 Base'
+AND p.nome IN ('Playstation 4', 'Playstation 5', 'Desktop');
 
--- Adicionar o jogo "The Sims 4 Base" à tabela Jogo
-INSERT INTO Jogo (id, nome, data_lancamento, plataforma_id, genero_id)
-VALUES (1, 'The Sims 4 Base', '2023-01-01', 
-        (SELECT id FROM Plataforma WHERE nome = 'Playstation 4'),
-        (SELECT id FROM Genero WHERE nome = 'Simulação da Vida Real'));
-
--- Criar o usuário "Derpson da Silva"
-INSERT INTO Usuario (id, nome, login, senha, email, dt_nascimento, cpf, rg)
-VALUES (1, 'Derpson da Silva', 'derpinho', 'derpinho91', 'derpinho91@hotmail.com', '1991-01-01', '123.123.123-12', '4.123.123');
-
--- Adicionar o jogo "The Sims 4 Base" à biblioteca do usuário "Derpson da Silva"
-INSERT INTO Usuario_Jogo (usuario_id, jogo_id)
-VALUES (1, 1);
-
+-- Inserir o usuário "Derpson da Silva" na tabela Usuario
+INSERT INTO Usuario (nome, login, senha, email, dt_nascimento, cpf, rg)
+VALUES ('Derpson da Silva', 'derpinho', 'derpinho91', 'derpinho91@hotmail.com', '1991-01-01', '123.123.123-12', '4.123.123');
